@@ -21,6 +21,12 @@ constexpr unsigned long kRequestTimeoutMs = 10000;
 Aircraft s_aircraft[kMaxAircraft];
 size_t s_aircraft_count = 0;
 PollFn s_poll_fn = nullptr;
+// Reused across fetches: allocating a fresh WiFiClientSecure/HTTPClient every
+// ~3 s (and freeing it) fragments the heap over hours of uptime, eventually
+// causing SSL socket memory allocation failures.
+WiFiClientSecure s_client;
+HTTPClient s_http;
+bool s_tls_configured = false;
 
 void pollNetwork() {
   if (s_poll_fn != nullptr) {
@@ -106,6 +112,14 @@ void buildPlaneFilter(JsonDocument& filter) {
   for (const char* key : kKeys) {
     filter[key] = true;
   }
+}
+
+void ensureClientConfigured() {
+  if (s_tls_configured) {
+    return;
+  }
+  s_client.setInsecure();
+  s_tls_configured = true;
 }
 
 float kmToNauticalMiles(float km) { return km / kKmPerNm; }
@@ -238,27 +252,26 @@ bool fetchUpdate(double center_lat, double center_lon, float fetch_radius_km) {
   url += "/dist/";
   url += String(dist_nm, 1);
 
-  WiFiClientSecure client;
-  client.setInsecure();
+  ensureClientConfigured();
 
-  HTTPClient http;
-  if (!http.begin(client, url)) {
+  if (!s_http.begin(s_client, url)) {
     Serial.println("adsb: http.begin failed");
     return false;
   }
 
-  http.setTimeout(kRequestTimeoutMs);
-  const int code = performGetWithPoll(http);
+  s_http.setTimeout(kRequestTimeoutMs);
+
+  const int code = performGetWithPoll(s_http);
   if (code != HTTP_CODE_OK) {
     Serial.printf("adsb: HTTP %d\n", code);
-    http.end();
+    s_http.end();
     return false;
   }
 
-  WiFiClient* source = http.getStreamPtr();
+  WiFiClient* source = s_http.getStreamPtr();
   if (source == nullptr) {
     Serial.println("adsb: no response stream");
-    http.end();
+    s_http.end();
     return false;
   }
 
@@ -268,7 +281,7 @@ bool fetchUpdate(double center_lat, double center_lon, float fetch_radius_km) {
   // Walk to the start of the "ac" array; two steps so `"ac" : [` also matches.
   if (!stream.find("\"ac\"") || !stream.find("[")) {
     Serial.println("adsb: no aircraft array in response");
-    http.end();
+    s_http.end();
     s_aircraft_count = 0;
     return true;
   }
@@ -310,7 +323,7 @@ bool fetchUpdate(double center_lat, double center_lon, float fetch_radius_km) {
     } while (stream.findUntil(",", "]"));
   }
 
-  http.end();
+  s_http.end();
 
   if (!ok && n == 0) {
     return false;
