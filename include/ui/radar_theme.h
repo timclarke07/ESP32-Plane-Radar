@@ -35,6 +35,13 @@ constexpr int kCenterDotRadius = 2;
 constexpr int kAircraftNoseLenPx = 8;
 constexpr int kAircraftTailLenPx = 3;
 constexpr int kAircraftTailHalfPx = 4;
+/** Fixed-wing plane symbol (10x10): fuselage + wings + tailplane. */
+constexpr int kAircraftPlaneNoseLenPx = 5;
+constexpr int kAircraftPlaneTailLenPx = 3;
+constexpr int kAircraftPlaneWingPosPx = 1;
+constexpr int kAircraftPlaneWingHalfPx = 5;
+constexpr int kAircraftPlaneTailHalfPx = 2;
+constexpr float kAircraftPlaneLineHalfWidth = 1.0f;
 /** Helicopter symbol: heading-rotated cross of similar footprint to the triangle. */
 constexpr int kAircraftCrossHalfLenPx = 5;
 constexpr int kAircraftCrossHalfWidthPx = 1;

@@ -376,6 +376,36 @@ void drawHeadingCross(int cx, int cy, float heading_deg, uint16_t color) {
                        half, color);
 }
 
+void drawAircraftPlane(int cx, int cy, float heading_deg, uint16_t color) {
+  constexpr float kDegToRad = 0.01745329252f;
+  const float rad = heading_deg * kDegToRad;
+  const float sin_h = sinf(rad);
+  const float cos_h = cosf(rad);
+  const float half = radar::kAircraftPlaneLineHalfWidth;
+
+  // Heading frame (forward = +x, right = +y) -> screen.
+  auto to_screen = [cx, cy, sin_h, cos_h](float fx, float fy, int* ox, int* oy) {
+    *ox = cx + lroundf(fx * sin_h + fy * cos_h);
+    *oy = cy - lroundf(fx * cos_h - fy * sin_h);
+  };
+
+  int x0 = 0;
+  int y0 = 0;
+  int x1 = 0;
+  int y1 = 0;
+  to_screen(radar::kAircraftPlaneNoseLenPx, 0, &x0, &y0);
+  to_screen(-radar::kAircraftPlaneTailLenPx, 0, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // fuselage
+
+  to_screen(radar::kAircraftPlaneWingPosPx, -radar::kAircraftPlaneWingHalfPx, &x0, &y0);
+  to_screen(radar::kAircraftPlaneWingPosPx, radar::kAircraftPlaneWingHalfPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // wings
+
+  to_screen(-radar::kAircraftPlaneTailLenPx, -radar::kAircraftPlaneTailHalfPx, &x0, &y0);
+  to_screen(-radar::kAircraftPlaneTailLenPx, radar::kAircraftPlaneTailHalfPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half * 0.75f, color);  // tailplane
+}
+
 void drawSpeedVector(int cx, int cy, float heading_deg, float track_deg,
                      float gs_knots, uint16_t color) {
   const int len = speedLineLengthPx(gs_knots);
@@ -566,6 +596,8 @@ void drawAircraft() {
                     planes[i].gs_knots, radar::kColorTrackVector);
     if (isHelicopter(planes[i])) {
       drawHeadingCross(x, y, planes[i].nose_deg, radar::kColorAircraft);
+    } else if (radar::showPlaneIcon()) {
+      drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
     } else {
       drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);
     }

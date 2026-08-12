@@ -45,9 +45,13 @@ float fetchRadiusKm();
 
 bool useMiles();
 bool showRunways();
+/** True = plane silhouette; false = legacy heading triangle. */
+bool showPlaneIcon();
 /** WiFi portal checkbox: "T" = miles, otherwise km. */
 void saveMilesFromPortal(const char* checkbox_value);
 void saveRunwaysFromPortal(const char* checkbox_value);
+/** WiFi portal checkbox: "T" = plane icon, otherwise triangle. */
+void savePlaneIconFromPortal(const char* checkbox_value);
 void formatRing3Label(char* buf, size_t len, float ring3_km, bool use_miles);
 void formatCurrentRing3Label(char* buf, size_t len);
 /** Reset distance units to km (e.g. with WiFi credential wipe). */

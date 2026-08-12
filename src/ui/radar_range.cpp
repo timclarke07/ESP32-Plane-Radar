@@ -15,6 +15,7 @@ constexpr char kPrefsNamespace[] = "planeradar";
 constexpr char kPrefsRangeKey[] = "rangeIdx";
 constexpr char kPrefsMilesKey[] = "useMiles";
 constexpr char kPrefsRunwaysKey[] = "showRwys";
+constexpr char kPrefsPlaneIconKey[] = "planeIcon";
 constexpr uint8_t kDefaultRangeIndex = 2;  // 15 km ring
 constexpr float kKmPerMile = 1.609344f;
 
@@ -22,6 +23,7 @@ Preferences s_prefs;
 uint8_t s_range_index = kDefaultRangeIndex;
 bool s_use_miles = false;
 bool s_show_runways = true;
+bool s_show_plane_icon = true;
 
 void saveRangeIndex() {
   if (!s_prefs.begin(kPrefsNamespace, false)) {
@@ -44,6 +46,14 @@ void saveShowRunways() {
     return;
   }
   s_prefs.putBool(kPrefsRunwaysKey, s_show_runways);
+  s_prefs.end();
+}
+
+void saveShowPlaneIcon() {
+  if (!s_prefs.begin(kPrefsNamespace, false)) {
+    return;
+  }
+  s_prefs.putBool(kPrefsPlaneIconKey, s_show_plane_icon);
   s_prefs.end();
 }
 
@@ -70,6 +80,7 @@ void rangeInit() {
       (saved < kRangePresetCount) ? saved : kDefaultRangeIndex;
   s_use_miles = s_prefs.getBool(kPrefsMilesKey, false);
   s_show_runways = s_prefs.getBool(kPrefsRunwaysKey, true);
+  s_show_plane_icon = s_prefs.getBool(kPrefsPlaneIconKey, true);
   s_prefs.end();
 }
 
@@ -105,6 +116,15 @@ void saveRunwaysFromPortal(const char* checkbox_value) {
   Serial.printf("Runway overlay: %s\n", s_show_runways ? "on" : "off");
 }
 
+bool showPlaneIcon() { return s_show_plane_icon; }
+
+void savePlaneIconFromPortal(const char* checkbox_value) {
+  s_show_plane_icon = portalCheckboxChecked(checkbox_value);
+  saveShowPlaneIcon();
+  Serial.printf("Aircraft icon: %s\n",
+                s_show_plane_icon ? "plane" : "triangle");
+}
+
 void formatRing3Label(char* buf, size_t len, float ring3_km, bool use_miles) {
   if (use_miles) {
     const int mi = static_cast<int>(lroundf(ring3_km / kKmPerMile));
@@ -122,9 +142,11 @@ void formatCurrentRing3Label(char* buf, size_t len) {
 void unitsReset() {
   s_use_miles = false;
   s_show_runways = true;
+  s_show_plane_icon = true;
   if (s_prefs.begin(kPrefsNamespace, false)) {
     s_prefs.remove(kPrefsMilesKey);
     s_prefs.remove(kPrefsRunwaysKey);
+    s_prefs.remove(kPrefsPlaneIconKey);
     s_prefs.end();
   }
 }
