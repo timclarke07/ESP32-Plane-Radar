@@ -365,8 +365,27 @@ float helicopterSpinAngleDeg() {
 
 enum class AircraftClass { Unknown, Light, Commercial, Rotorcraft, Balloon };
 
+// Many transponders report "A0" (no category) or "A2" (small) even for
+// scheduled airliners, so the ICAO type code is a secondary signal: these
+// prefixes cover the common commercial jet/turboprop families.
+bool isCommercialType(const char* type) {
+  static const char* const kAirlinerPrefixes[] = {
+      "B7", "B37", "B38", "B39", "A3", "BCS", "E13", "E14", "E17", "E19",
+      "E75", "E95", "E29", "CRJ", "DH8", "AT4", "AT7", "MD8", "MD9", "MD1",
+      "DC9", "F10", "F70", "B46", "RJ1", "RJ7", "RJ8", "SU9", "TU2", "TU1",
+      nullptr};
+  for (int i = 0; kAirlinerPrefixes[i] != nullptr; ++i) {
+    if (strncmp(type, kAirlinerPrefixes[i],
+                strlen(kAirlinerPrefixes[i])) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // ADS-B emitter category weight classes (reported as e.g. "A1"):
-//   1 = Light, 3/4/5 = Commercial airliner, 7 = Rotorcraft, 9 = Lighter-than-air.
+//   1 = Light, 2 = Small, 3/4/5 = Commercial airliner, 7 = Rotorcraft,
+//   9 = Lighter-than-air.
 AircraftClass classifyAircraft(const services::adsb::Aircraft& plane) {
   const char c0 = plane.category[0];
   const char c1 = plane.category[1];
@@ -375,6 +394,7 @@ AircraftClass classifyAircraft(const services::adsb::Aircraft& plane) {
                                                             : -1;
   switch (cat) {
     case 1:
+    case 2:
       return AircraftClass::Light;
     case 3:
     case 4:
@@ -385,7 +405,8 @@ AircraftClass classifyAircraft(const services::adsb::Aircraft& plane) {
     case 9:
       return AircraftClass::Balloon;
     default:
-      return AircraftClass::Unknown;
+      return isCommercialType(plane.type) ? AircraftClass::Commercial
+                                          : AircraftClass::Unknown;
   }
 }
 
