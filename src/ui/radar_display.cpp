@@ -350,11 +350,20 @@ bool isHelicopter(const services::adsb::Aircraft& plane) {
   return plane.type[0] == 'H';
 }
 
-void drawHelicopterCross(int cx, int cy, uint16_t color) {
-  const int arm = radar::kAircraftCrossHalfLenPx;
-  const int half = radar::kAircraftCrossHalfWidthPx;
-  s_draw->fillRect(cx - half, cy - arm, half * 2, arm * 2, color);
-  s_draw->fillRect(cx - arm, cy - half, arm * 2, half * 2, color);
+void drawHeadingCross(int cx, int cy, float heading_deg, uint16_t color) {
+  constexpr float kDegToRad = 0.01745329252f;
+  const float rad = heading_deg * kDegToRad;
+  const float sin_h = sinf(rad);
+  const float cos_h = cosf(rad);
+  const float arm = static_cast<float>(radar::kAircraftCrossHalfLenPx);
+  const float half = static_cast<float>(radar::kAircraftCrossHalfWidthPx);
+
+  s_draw->drawWideLine(cx - lroundf(sin_h * arm), cy + lroundf(cos_h * arm),
+                       cx + lroundf(sin_h * arm), cy - lroundf(cos_h * arm),
+                       half, color);
+  s_draw->drawWideLine(cx - lroundf(cos_h * arm), cy - lroundf(sin_h * arm),
+                       cx + lroundf(cos_h * arm), cy + lroundf(sin_h * arm),
+                       half, color);
 }
 
 void drawSpeedVector(int cx, int cy, float heading_deg, float track_deg,
@@ -546,7 +555,7 @@ void drawAircraft() {
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
     if (isHelicopter(planes[i])) {
-      drawHelicopterCross(x, y, radar::kColorAircraft);
+      drawHeadingCross(x, y, planes[i].nose_deg, radar::kColorAircraft);
     } else {
       drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);
     }

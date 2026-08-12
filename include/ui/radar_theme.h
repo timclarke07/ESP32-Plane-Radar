@@ -35,7 +35,7 @@ constexpr int kCenterDotRadius = 2;
 constexpr int kAircraftNoseLenPx = 8;
 constexpr int kAircraftTailLenPx = 3;
 constexpr int kAircraftTailHalfPx = 4;
-/** Helicopter symbol: cross of similar footprint to the aircraft triangle. */
+/** Helicopter symbol: heading-rotated cross of similar footprint to the triangle. */
 constexpr int kAircraftCrossHalfLenPx = 5;
 constexpr int kAircraftCrossHalfWidthPx = 1;
 /** Track vector: ground distance covered in this many seconds at current gs. */
