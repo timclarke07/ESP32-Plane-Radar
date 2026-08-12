@@ -351,8 +351,13 @@ void drawHeadingTriangle(int cx, int cy, float heading_deg, uint16_t color) {
 }
 
 bool isHelicopter(const services::adsb::Aircraft& plane) {
-  // ICAO type designators of all helicopters begin with 'H'.
-  return plane.type[0] == 'H';
+  // ADS-B emitter category 7 = rotorcraft (reported as e.g. "A7"). ICAO type
+  // designators starting with 'H' are a secondary catch-all (e.g. "H125"),
+  // since many helicopters have non-H codes (R44, B407, EC35, ...).
+  const char c0 = plane.category[0];
+  const char c1 = plane.category[1];
+  const bool rotorcraft = (c1 == '7') || (c0 == '7' && c1 == '\0');
+  return rotorcraft || plane.type[0] == 'H';
 }
 
 void drawHeadingCross(int cx, int cy, float heading_deg, uint16_t color) {

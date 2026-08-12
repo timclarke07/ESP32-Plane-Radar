@@ -13,6 +13,8 @@ struct Aircraft {
   char callsign[9];
   char type[5];
   char alt[12];
+  /** ADS-B emitter category ("A7" = rotorcraft/helicopter); "" if unknown. */
+  char category[3];
 };
 
 constexpr size_t kMaxAircraft = 64;

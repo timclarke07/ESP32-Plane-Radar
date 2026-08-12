@@ -107,8 +107,9 @@ class PollingStream : public Stream {
 /** Keeps only the fields the radar actually renders. */
 void buildPlaneFilter(JsonDocument& filter) {
   static const char* const kKeys[] = {
-      "lat", "lon", "true_heading", "mag_heading", "track",    "dir", "gs",
-      "tas", "ias", "alt_baro",     "alt_geom",    "flight",   "hex", "t"};
+      "lat",   "lon",        "true_heading", "mag_heading", "track", "dir",
+      "gs",    "tas",        "ias",          "alt_baro",    "alt_geom", "flight",
+      "hex",   "t",          "category"};
   for (const char* key : kKeys) {
     filter[key] = true;
   }
@@ -232,6 +233,7 @@ void fillTagFields(Aircraft* ac, const JsonObject& plane) {
 
   copyJsonStringTrimmed(plane, "t", ac->type, sizeof(ac->type));
   formatAltitudeTag(plane, ac->alt, sizeof(ac->alt));
+  copyJsonStringTrimmed(plane, "category", ac->category, sizeof(ac->category));
 }
 
 }  // namespace
