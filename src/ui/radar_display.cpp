@@ -607,10 +607,12 @@ void drawAircraft() {
     const int y = items[d].y;
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
-    if (isHelicopter(planes[i])) {
-      drawHeadingCross(x, y, helicopterSpinAngleDeg(), radar::kColorHelicopter);
-    } else if (radar::showPlaneIcon()) {
-      drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
+    if (radar::showPlaneIcon()) {
+      if (isHelicopter(planes[i])) {
+        drawHeadingCross(x, y, helicopterSpinAngleDeg(), radar::kColorHelicopter);
+      } else {
+        drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
+      }
     } else {
       drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);
     }

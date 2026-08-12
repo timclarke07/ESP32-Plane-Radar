@@ -115,7 +115,7 @@ void loop() {
     } else if (millis() - g_last_adsb_fetch_ms >= config::kAdsbFetchIntervalMs) {
       g_last_adsb_fetch_ms = millis();
       fetchAndDrawAircraft();
-    } else if (ui::radarDisplayAnyHelicopter() &&
+    } else if (ui::radar::showPlaneIcon() && ui::radarDisplayAnyHelicopter() &&
                millis() - g_last_anim_refresh_ms >= kAnimFrameMs) {
       g_last_anim_refresh_ms = millis();
       ui::radarDisplayRefreshAircraft();
