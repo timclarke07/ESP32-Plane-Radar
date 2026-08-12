@@ -15,8 +15,6 @@
 #include "ui/radar_theme.h"
 #include "ui/runway_overlay.h"
 
-namespace fonts = lgfx::v1::fonts;
-
 namespace ui {
 namespace radar {
 
@@ -347,6 +345,18 @@ void drawHeadingTriangle(int cx, int cy, float heading_deg, uint16_t color) {
                        base_x - wing_x, base_y - wing_y, color);
 }
 
+bool isHelicopter(const services::adsb::Aircraft& plane) {
+  // ICAO type designators of all helicopters begin with 'H'.
+  return plane.type[0] == 'H';
+}
+
+void drawHelicopterCross(int cx, int cy, uint16_t color) {
+  const int arm = radar::kAircraftCrossHalfLenPx;
+  const int half = radar::kAircraftCrossHalfWidthPx;
+  s_draw->fillRect(cx - half, cy - arm, half * 2, arm * 2, color);
+  s_draw->fillRect(cx - arm, cy - half, arm * 2, half * 2, color);
+}
+
 void drawSpeedVector(int cx, int cy, float heading_deg, float track_deg,
                      float gs_knots, uint16_t color) {
   const int len = speedLineLengthPx(gs_knots);
@@ -535,7 +545,11 @@ void drawAircraft() {
     const int y = items[d].y;
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
-    drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);
+    if (isHelicopter(planes[i])) {
+      drawHelicopterCross(x, y, radar::kColorAircraft);
+    } else {
+      drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);
+    }
   }
   for (size_t d = 0; d < draw_count; ++d) {
     const size_t i = items[d].index;
