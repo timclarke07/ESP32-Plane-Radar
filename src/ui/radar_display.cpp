@@ -23,6 +23,7 @@ uint16_t kColorGrid = 0x0320;
 uint16_t kColorLabel = 0xFFFF;
 uint16_t kColorCenter = 0xFFFF;
 uint16_t kColorAircraft = 0x001F;
+uint16_t kColorHelicopter = 0xF800;
 uint16_t kColorTrackVector = 0xFFFF;
 uint16_t kColorTagType = 0x5DFF;
 uint16_t kColorTagAltitude = 0xFFE0;
@@ -181,9 +182,15 @@ void initPalette() {
   if (config::kDisplayRgbOrder) {
     radar::kColorAircraft =
         tft.color565(radar::kAircraftB, radar::kAircraftG, radar::kAircraftR);
+    radar::kColorHelicopter = tft.color565(radar::kHelicopterB,
+                                           radar::kHelicopterG,
+                                           radar::kHelicopterR);
   } else {
     radar::kColorAircraft =
         tft.color565(radar::kAircraftR, radar::kAircraftG, radar::kAircraftB);
+    radar::kColorHelicopter = tft.color565(radar::kHelicopterR,
+                                           radar::kHelicopterG,
+                                           radar::kHelicopterB);
   }
   radar::kColorTrackVector =
       tft.color565(radar::kTrackR, radar::kTrackG, radar::kTrackB);
@@ -595,7 +602,7 @@ void drawAircraft() {
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
     if (isHelicopter(planes[i])) {
-      drawHeadingCross(x, y, planes[i].nose_deg, radar::kColorAircraft);
+      drawHeadingCross(x, y, planes[i].nose_deg, radar::kColorHelicopter);
     } else if (radar::showPlaneIcon()) {
       drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
     } else {

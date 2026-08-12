@@ -82,6 +82,10 @@ constexpr uint8_t kGridB = 32;
 constexpr uint8_t kAircraftR = 255;
 constexpr uint8_t kAircraftG = 0;
 constexpr uint8_t kAircraftB = 0;
+/** Deep orange for helicopters. */
+constexpr uint8_t kHelicopterR = 255;
+constexpr uint8_t kHelicopterG = 90;
+constexpr uint8_t kHelicopterB = 0;
 constexpr uint8_t kTrackR = 255;
 constexpr uint8_t kTrackG = 0;
 constexpr uint8_t kTrackB = 255;
@@ -104,6 +108,7 @@ extern uint16_t kColorGrid;
 extern uint16_t kColorLabel;
 extern uint16_t kColorCenter;
 extern uint16_t kColorAircraft;
+extern uint16_t kColorHelicopter;
 extern uint16_t kColorTrackVector;
 extern uint16_t kColorTagType;
 extern uint16_t kColorTagAltitude;
