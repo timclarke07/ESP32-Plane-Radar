@@ -50,10 +50,10 @@ constexpr float kHelicopterSpinDegPerSec = 180.0f;
 /** Commercial airliner symbol: long fuselage + swept-back wings + engine pods. */
 constexpr int kAircraftJetNoseLenPx = 8;
 constexpr int kAircraftJetTailLenPx = 5;
-constexpr int kAircraftJetWingRootFwdPx = 3;
+constexpr int kAircraftJetWingRootFwdPx = 4;
 constexpr int kAircraftJetWingRootOutPx = 2;
-constexpr int kAircraftJetWingTipAftPx = 3;
-constexpr int kAircraftJetWingTipOutPx = 8;
+constexpr int kAircraftJetWingTipAftPx = 2;
+constexpr int kAircraftJetWingTipOutPx = 6;
 constexpr int kAircraftJetTailHalfPx = 3;
 constexpr int kAircraftJetPodFwdPx = 2;
 constexpr int kAircraftJetPodAftPx = 0;
