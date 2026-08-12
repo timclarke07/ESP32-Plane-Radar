@@ -84,9 +84,9 @@ constexpr uint8_t kGridB = 32;
 constexpr uint8_t kAircraftR = 255;
 constexpr uint8_t kAircraftG = 0;
 constexpr uint8_t kAircraftB = 0;
-/** Deep orange for helicopters. */
+/** Red helicopters. */
 constexpr uint8_t kHelicopterR = 255;
-constexpr uint8_t kHelicopterG = 90;
+constexpr uint8_t kHelicopterG = 0;
 constexpr uint8_t kHelicopterB = 0;
 constexpr uint8_t kTrackR = 255;
 constexpr uint8_t kTrackG = 0;
