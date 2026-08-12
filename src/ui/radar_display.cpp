@@ -363,14 +363,38 @@ float helicopterSpinAngleDeg() {
                360.0f);
 }
 
-bool isHelicopter(const services::adsb::Aircraft& plane) {
-  // ADS-B emitter category 7 = rotorcraft (reported as e.g. "A7"). ICAO type
-  // designators starting with 'H' are a secondary catch-all (e.g. "H125"),
-  // since many helicopters have non-H codes (R44, B407, EC35, ...).
+enum class AircraftClass { Unknown, Light, Commercial, Rotorcraft, Balloon };
+
+// ADS-B emitter category weight classes (reported as e.g. "A1"):
+//   1 = Light, 3/4/5 = Commercial airliner, 7 = Rotorcraft, 9 = Lighter-than-air.
+AircraftClass classifyAircraft(const services::adsb::Aircraft& plane) {
   const char c0 = plane.category[0];
   const char c1 = plane.category[1];
-  const bool rotorcraft = (c1 == '7') || (c0 == '7' && c1 == '\0');
-  return rotorcraft || plane.type[0] == 'H';
+  const int cat = (c0 == 'A' && c1 >= '0' && c1 <= '9') ? c1 - '0'
+                  : (c0 >= '0' && c0 <= '9' && c1 == '\0') ? c0 - '0'
+                                                            : -1;
+  switch (cat) {
+    case 1:
+      return AircraftClass::Light;
+    case 3:
+    case 4:
+    case 5:
+      return AircraftClass::Commercial;
+    case 7:
+      return AircraftClass::Rotorcraft;
+    case 9:
+      return AircraftClass::Balloon;
+    default:
+      return AircraftClass::Unknown;
+  }
+}
+
+bool isHelicopter(const services::adsb::Aircraft& plane) {
+  // ADS-B emitter category 7 = rotorcraft. ICAO type designators starting with
+  // 'H' are a secondary catch-all (e.g. "H125"), since many helicopters have
+  // non-H codes (R44, B407, EC35, ...).
+  return classifyAircraft(plane) == AircraftClass::Rotorcraft ||
+         plane.type[0] == 'H';
 }
 
 void drawHeadingCross(int cx, int cy, float heading_deg, uint16_t color) {
@@ -417,6 +441,78 @@ void drawAircraftPlane(int cx, int cy, float heading_deg, uint16_t color) {
   to_screen(-radar::kAircraftPlaneTailLenPx, -radar::kAircraftPlaneTailHalfPx, &x0, &y0);
   to_screen(-radar::kAircraftPlaneTailLenPx, radar::kAircraftPlaneTailHalfPx, &x1, &y1);
   s_draw->drawWideLine(x0, y0, x1, y1, half * 0.75f, color);  // tailplane
+}
+
+void drawAircraftJet(int cx, int cy, float heading_deg, uint16_t color) {
+  constexpr float kDegToRad = 0.01745329252f;
+  const float rad = heading_deg * kDegToRad;
+  const float sin_h = sinf(rad);
+  const float cos_h = cosf(rad);
+  const float half = radar::kAircraftPlaneLineHalfWidth;
+
+  auto to_screen = [cx, cy, sin_h, cos_h](float fx, float fy, int* ox, int* oy) {
+    *ox = cx + lroundf(fx * sin_h + fy * cos_h);
+    *oy = cy - lroundf(fx * cos_h - fy * sin_h);
+  };
+
+  int x0 = 0;
+  int y0 = 0;
+  int x1 = 0;
+  int y1 = 0;
+  to_screen(radar::kAircraftJetNoseLenPx, 0, &x0, &y0);
+  to_screen(-radar::kAircraftJetTailLenPx, 0, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // fuselage
+
+  // Swept-back wings: root (forward, inboard) -> tip (aft, outboard).
+  to_screen(radar::kAircraftJetWingRootFwdPx, -radar::kAircraftJetWingRootOutPx, &x0, &y0);
+  to_screen(-radar::kAircraftJetWingTipAftPx, -radar::kAircraftJetWingTipOutPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // port wing
+
+  to_screen(radar::kAircraftJetWingRootFwdPx, radar::kAircraftJetWingRootOutPx, &x0, &y0);
+  to_screen(-radar::kAircraftJetWingTipAftPx, radar::kAircraftJetWingTipOutPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // starboard wing
+
+  to_screen(-radar::kAircraftJetTailLenPx, -radar::kAircraftJetTailHalfPx, &x0, &y0);
+  to_screen(-radar::kAircraftJetTailLenPx, radar::kAircraftJetTailHalfPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half * 0.75f, color);  // tailplane
+}
+
+void drawAircraftLight(int cx, int cy, float heading_deg, uint16_t color) {
+  constexpr float kDegToRad = 0.01745329252f;
+  const float rad = heading_deg * kDegToRad;
+  const float sin_h = sinf(rad);
+  const float cos_h = cosf(rad);
+  const float half = radar::kAircraftPlaneLineHalfWidth;
+
+  auto to_screen = [cx, cy, sin_h, cos_h](float fx, float fy, int* ox, int* oy) {
+    *ox = cx + lroundf(fx * sin_h + fy * cos_h);
+    *oy = cy - lroundf(fx * cos_h - fy * sin_h);
+  };
+
+  int x0 = 0;
+  int y0 = 0;
+  int x1 = 0;
+  int y1 = 0;
+  to_screen(radar::kAircraftLightNoseLenPx, 0, &x0, &y0);
+  to_screen(-radar::kAircraftLightTailLenPx, 0, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // fuselage
+
+  to_screen(radar::kAircraftLightWingPosPx, -radar::kAircraftLightWingHalfPx, &x0, &y0);
+  to_screen(radar::kAircraftLightWingPosPx, radar::kAircraftLightWingHalfPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // wings
+
+  to_screen(-radar::kAircraftLightTailLenPx, -radar::kAircraftLightTailHalfPx, &x0, &y0);
+  to_screen(-radar::kAircraftLightTailLenPx, radar::kAircraftLightTailHalfPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half * 0.75f, color);  // tailplane
+}
+
+void drawAircraftBalloon(int cx, int cy, uint16_t color) {
+  const int env_y = cy + radar::kAircraftBalloonCenterY;
+  s_draw->drawCircle(cx, env_y, radar::kAircraftBalloonRadiusPx, color);
+  const int bx = cx - radar::kAircraftBalloonBasketW / 2;
+  const int by = cy + radar::kAircraftBalloonBasketY;
+  s_draw->fillRect(bx, by, radar::kAircraftBalloonBasketW,
+                   radar::kAircraftBalloonBasketH, color);
 }
 
 void drawSpeedVector(int cx, int cy, float heading_deg, float track_deg,
@@ -608,10 +704,22 @@ void drawAircraft() {
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
     if (radar::showPlaneIcon()) {
-      if (isHelicopter(planes[i])) {
-        drawHeadingCross(x, y, helicopterSpinAngleDeg(), radar::kColorHelicopter);
-      } else {
-        drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
+      switch (classifyAircraft(planes[i])) {
+        case AircraftClass::Rotorcraft:
+          drawHeadingCross(x, y, helicopterSpinAngleDeg(), radar::kColorHelicopter);
+          break;
+        case AircraftClass::Commercial:
+          drawAircraftJet(x, y, planes[i].nose_deg, radar::kColorAircraft);
+          break;
+        case AircraftClass::Light:
+          drawAircraftLight(x, y, planes[i].nose_deg, radar::kColorAircraft);
+          break;
+        case AircraftClass::Balloon:
+          drawAircraftBalloon(x, y, radar::kColorAircraft);
+          break;
+        default:
+          drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
+          break;
       }
     } else {
       drawHeadingTriangle(x, y, planes[i].nose_deg, radar::kColorAircraft);

@@ -47,6 +47,26 @@ constexpr int kAircraftCrossHalfLenPx = 5;
 constexpr int kAircraftCrossHalfWidthPx = 1;
 /** Helicopter cross continuously rotates at this rate (deg/s). */
 constexpr float kHelicopterSpinDegPerSec = 180.0f;
+/** Commercial airliner symbol: longer fuselage + swept-back wings. */
+constexpr int kAircraftJetNoseLenPx = 6;
+constexpr int kAircraftJetTailLenPx = 4;
+constexpr int kAircraftJetWingRootFwdPx = 2;
+constexpr int kAircraftJetWingRootOutPx = 1;
+constexpr int kAircraftJetWingTipAftPx = 2;
+constexpr int kAircraftJetWingTipOutPx = 6;
+constexpr int kAircraftJetTailHalfPx = 2;
+/** Light aircraft symbol: compact straight-wing GA plane. */
+constexpr int kAircraftLightNoseLenPx = 4;
+constexpr int kAircraftLightTailLenPx = 3;
+constexpr int kAircraftLightWingPosPx = 1;
+constexpr int kAircraftLightWingHalfPx = 4;
+constexpr int kAircraftLightTailHalfPx = 2;
+/** Balloon symbol: envelope ring + hanging basket (heading-independent). */
+constexpr int kAircraftBalloonRadiusPx = 4;
+constexpr int kAircraftBalloonCenterY = -1;
+constexpr int kAircraftBalloonBasketW = 3;
+constexpr int kAircraftBalloonBasketH = 3;
+constexpr int kAircraftBalloonBasketY = 3;
 /** Track vector: ground distance covered in this many seconds at current gs. */
 constexpr float kAircraftTrackHorizonSec = 60.0f;
 /** Minimum visible vector when gs > 0 (px). */
