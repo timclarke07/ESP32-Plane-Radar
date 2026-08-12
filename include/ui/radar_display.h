@@ -8,4 +8,7 @@ void radarDisplayDraw();
 /** Redraw aircraft only (blits cached grid; no full-screen clear). */
 void radarDisplayRefreshAircraft();
 
+/** True when at least one tracked aircraft is a rotorcraft. */
+bool radarDisplayAnyHelicopter();
+
 }  // namespace ui

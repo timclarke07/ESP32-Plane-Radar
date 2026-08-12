@@ -357,6 +357,12 @@ void drawHeadingTriangle(int cx, int cy, float heading_deg, uint16_t color) {
                        base_x - wing_x, base_y - wing_y, color);
 }
 
+float helicopterSpinAngleDeg() {
+  return fmodf(static_cast<float>(millis()) * radar::kHelicopterSpinDegPerSec /
+                   1000.0f,
+               360.0f);
+}
+
 bool isHelicopter(const services::adsb::Aircraft& plane) {
   // ADS-B emitter category 7 = rotorcraft (reported as e.g. "A7"). ICAO type
   // designators starting with 'H' are a secondary catch-all (e.g. "H125"),
@@ -602,7 +608,7 @@ void drawAircraft() {
     drawSpeedVector(x, y, planes[i].nose_deg, planes[i].track_deg,
                     planes[i].gs_knots, radar::kColorTrackVector);
     if (isHelicopter(planes[i])) {
-      drawHeadingCross(x, y, planes[i].nose_deg, radar::kColorHelicopter);
+      drawHeadingCross(x, y, helicopterSpinAngleDeg(), radar::kColorHelicopter);
     } else if (radar::showPlaneIcon()) {
       drawAircraftPlane(x, y, planes[i].nose_deg, radar::kColorAircraft);
     } else {
@@ -781,6 +787,17 @@ void radarDisplayRefreshAircraft() {
   }
 
   radarDisplayDraw();
+}
+
+bool radarDisplayAnyHelicopter() {
+  const size_t n = services::adsb::aircraftCount();
+  const services::adsb::Aircraft* planes = services::adsb::aircraftList();
+  for (size_t i = 0; i < n; ++i) {
+    if (isHelicopter(planes[i])) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace ui

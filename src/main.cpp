@@ -20,6 +20,9 @@ bool g_radar_visible = false;
 unsigned long g_wifi_down_since = 0;
 unsigned long g_last_reconnect_ms = 0;
 unsigned long g_last_adsb_fetch_ms = 0;
+unsigned long g_last_anim_refresh_ms = 0;
+
+constexpr unsigned long kAnimFrameMs = 1000 / 15;  // 15 fps spin animation
 
 void showRadarIfConnected() {
   if (WiFi.status() != WL_CONNECTED) {
@@ -112,6 +115,10 @@ void loop() {
     } else if (millis() - g_last_adsb_fetch_ms >= config::kAdsbFetchIntervalMs) {
       g_last_adsb_fetch_ms = millis();
       fetchAndDrawAircraft();
+    } else if (ui::radarDisplayAnyHelicopter() &&
+               millis() - g_last_anim_refresh_ms >= kAnimFrameMs) {
+      g_last_anim_refresh_ms = millis();
+      ui::radarDisplayRefreshAircraft();
     }
   }
 
