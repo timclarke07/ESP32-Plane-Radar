@@ -472,6 +472,15 @@ void drawAircraftJet(int cx, int cy, float heading_deg, uint16_t color) {
   to_screen(-radar::kAircraftJetWingTipAftPx, radar::kAircraftJetWingTipOutPx, &x1, &y1);
   s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // starboard wing
 
+  // Engine nacelles: short bars parallel to the fuselage under the wing roots.
+  to_screen(radar::kAircraftJetPodFwdPx, -radar::kAircraftJetPodOutPx, &x0, &y0);
+  to_screen(radar::kAircraftJetPodAftPx, -radar::kAircraftJetPodOutPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // port pod
+
+  to_screen(radar::kAircraftJetPodFwdPx, radar::kAircraftJetPodOutPx, &x0, &y0);
+  to_screen(radar::kAircraftJetPodAftPx, radar::kAircraftJetPodOutPx, &x1, &y1);
+  s_draw->drawWideLine(x0, y0, x1, y1, half, color);  // starboard pod
+
   to_screen(-radar::kAircraftJetTailLenPx, -radar::kAircraftJetTailHalfPx, &x0, &y0);
   to_screen(-radar::kAircraftJetTailLenPx, radar::kAircraftJetTailHalfPx, &x1, &y1);
   s_draw->drawWideLine(x0, y0, x1, y1, half * 0.75f, color);  // tailplane

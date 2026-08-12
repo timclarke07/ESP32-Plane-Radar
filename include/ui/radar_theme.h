@@ -47,14 +47,17 @@ constexpr int kAircraftCrossHalfLenPx = 5;
 constexpr int kAircraftCrossHalfWidthPx = 1;
 /** Helicopter cross continuously rotates at this rate (deg/s). */
 constexpr float kHelicopterSpinDegPerSec = 180.0f;
-/** Commercial airliner symbol: longer fuselage + swept-back wings. */
-constexpr int kAircraftJetNoseLenPx = 6;
-constexpr int kAircraftJetTailLenPx = 4;
-constexpr int kAircraftJetWingRootFwdPx = 2;
-constexpr int kAircraftJetWingRootOutPx = 1;
-constexpr int kAircraftJetWingTipAftPx = 2;
-constexpr int kAircraftJetWingTipOutPx = 6;
-constexpr int kAircraftJetTailHalfPx = 2;
+/** Commercial airliner symbol: long fuselage + swept-back wings + engine pods. */
+constexpr int kAircraftJetNoseLenPx = 8;
+constexpr int kAircraftJetTailLenPx = 5;
+constexpr int kAircraftJetWingRootFwdPx = 3;
+constexpr int kAircraftJetWingRootOutPx = 2;
+constexpr int kAircraftJetWingTipAftPx = 3;
+constexpr int kAircraftJetWingTipOutPx = 8;
+constexpr int kAircraftJetTailHalfPx = 3;
+constexpr int kAircraftJetPodFwdPx = 2;
+constexpr int kAircraftJetPodAftPx = 0;
+constexpr int kAircraftJetPodOutPx = 4;
 /** Light aircraft symbol: compact straight-wing GA plane. */
 constexpr int kAircraftLightNoseLenPx = 4;
 constexpr int kAircraftLightTailLenPx = 3;
